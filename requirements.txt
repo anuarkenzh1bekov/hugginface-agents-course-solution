@@ -1,2 +1,9 @@
 gradio
+spaces
 requests
+openai>=1.30.0
+duckduckgo-search
+markdownify
+beautifulsoup4
+pandas
+openpyxl
