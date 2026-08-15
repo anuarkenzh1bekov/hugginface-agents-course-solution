@@ -27,9 +27,13 @@ Then log in with the HF button and click **Run Evaluation & Submit All Answers**
 
 ### ZeroGPU
 The Space runs on ZeroGPU hardware. Inference is done via the OpenAI API (remote),
-so no local GPU is used and the submit function is intentionally **not** wrapped in
-`@spaces.GPU` — that decorator caps a call at ~60s, and evaluating all 20 questions
-takes minutes. The `spaces` package is included only for ZeroGPU runtime compatibility.
+so no local GPU is used. ZeroGPU refuses to start without a `@spaces.GPU` function,
+so `app.py` registers a tiny no-op probe (`_zerogpu_probe`) just to pass startup
+detection. The real evaluation loop is intentionally **not** decorated — `@spaces.GPU`
+caps a call at ~60s and evaluating all 20 questions takes minutes.
+
+> Tip: since no GPU is actually used, plain **CPU basic** hardware also works and is
+> simpler. ZeroGPU is only needed if you specifically want that hardware.
 
 ### Structure
 ```

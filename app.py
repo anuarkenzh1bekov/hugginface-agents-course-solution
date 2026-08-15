@@ -5,6 +5,20 @@ import pandas as pd
 
 from agent import GaiaAgent
 
+# --- ZeroGPU compatibility ---
+# ZeroGPU hardware refuses to start unless it detects at least one @spaces.GPU
+# function ("No @spaces.GPU function detected during startup"). Our agent does
+# remote OpenAI inference and uses no local GPU, so we register a tiny probe just
+# to satisfy startup detection. The real evaluation loop stays on CPU (no 60s cap).
+try:
+    import spaces
+
+    @spaces.GPU(duration=1)
+    def _zerogpu_probe():
+        return "ok"
+except Exception:
+    pass
+
 # (Keep Constants as is)
 # --- Constants ---
 DEFAULT_API_URL = "https://agents-course-unit4-scoring.hf.space"
