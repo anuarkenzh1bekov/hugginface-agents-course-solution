@@ -48,8 +48,13 @@ def run_and_submit_all( profile: gr.OAuthProfile | None):
     except Exception as e:
         print(f"Error instantiating agent: {e}")
         return f"Error initializing agent: {e}", None
-    # In the case of an app running as a hugging Face space, this link points toward your codebase ( usefull for others so please keep it public)
-    agent_code = f"https://huggingface.co/spaces/{space_id}/tree/main"
+    # Link to the public code, used by the leaderboard for verification.
+    # On a Space this is derived from SPACE_ID; running locally you can point it at
+    # your public Space via the AGENT_CODE_URL env var.
+    if space_id:
+        agent_code = f"https://huggingface.co/spaces/{space_id}/tree/main"
+    else:
+        agent_code = os.getenv("AGENT_CODE_URL", "").strip()
     print(agent_code)
 
     # 2. Fetch Questions
