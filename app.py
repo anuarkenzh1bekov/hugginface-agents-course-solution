@@ -197,4 +197,6 @@ if __name__ == "__main__":
     print("-"*(60 + len(" App Starting ")) + "\n")
 
     print("Launching Gradio Interface for Basic Agent Evaluation...")
-    demo.launch(debug=True, share=False)
+    # ssr_mode=False disables Gradio 5's experimental SSR, which logs noisy
+    # "SvelteKitError: POST method not allowed" / Content-Length warnings on HF.
+    demo.launch(debug=True, share=False, ssr_mode=False)
