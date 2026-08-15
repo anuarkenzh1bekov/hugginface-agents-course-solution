@@ -35,8 +35,14 @@ def run_and_submit_all( profile: gr.OAuthProfile | None):
         username= f"{profile.username}"
         print(f"User logged in: {username}")
     else:
-        print("User not logged in.")
-        return "Please Login to Hugging Face with the button.", None
+        # Off-Space (local) fallback: the OAuth button only works on a Space, so
+        # allow submitting with the HF_USERNAME env var instead.
+        username = os.getenv("HF_USERNAME", "").strip()
+        if username:
+            print(f"Using HF_USERNAME from environment: {username}")
+        else:
+            print("User not logged in.")
+            return "Please Login to Hugging Face with the button (or set HF_USERNAME when running locally).", None
 
     api_url = DEFAULT_API_URL
     questions_url = f"{api_url}/questions"
