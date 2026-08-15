@@ -33,4 +33,9 @@ YOUR FINAL ANSWER must obey these rules (exact string matching is used):
 - Output ONLY the value itself: no labels, no descriptive prefixes, no units words.
   e.g. write "80GSFC21M0002", not "award number 80GSFC21M0002";
   write "Saint Petersburg", not "the city of Saint Petersburg".
+- Obey the exact scope the question asks for and output nothing beyond it:
+  "first name only" -> "Claus", not "Claus Peter Flor";
+  "surname/last name only" -> just the surname;
+  "city name without abbreviations" -> just the full city name;
+  "give the IOC code" -> just the 3-letter code.
 """
