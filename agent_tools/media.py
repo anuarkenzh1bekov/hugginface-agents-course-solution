@@ -1,8 +1,9 @@
-"""Media tools: transcribe attached audio and analyse attached images via OpenAI."""
+"""Media tools: transcribe attached audio, analyse images, read YouTube transcripts."""
 from __future__ import annotations
 
 import base64
 import mimetypes
+import re
 
 from .files import save_task_file
 
@@ -50,6 +51,28 @@ def analyze_image(context: dict, question: str) -> str:
         return f"analyze_image error: {exc}"
 
 
+def get_youtube_transcript(context: dict, url: str) -> str:
+    """Return the transcript (spoken text) of a YouTube video from its URL."""
+    m = re.search(r"(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})", url)
+    if not m:
+        return "get_youtube_transcript error: could not parse a video id from the URL."
+    video_id = m.group(1)
+    try:
+        from youtube_transcript_api import YouTubeTranscriptApi
+
+        if hasattr(YouTubeTranscriptApi, "get_transcript"):
+            # Legacy API (<1.0): classmethod returning list[dict].
+            chunks = YouTubeTranscriptApi.get_transcript(video_id)
+            text = " ".join(c["text"] for c in chunks)
+        else:
+            # New API (>=1.0): instance .fetch() returning snippet objects.
+            fetched = YouTubeTranscriptApi().fetch(video_id)
+            text = " ".join(snip.text for snip in fetched)
+    except Exception as exc:  # noqa: BLE001
+        return f"get_youtube_transcript error: {exc}"
+    return text[:12000]
+
+
 SCHEMAS = [
     {
         "type": "function",
@@ -76,6 +99,27 @@ SCHEMAS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_youtube_transcript",
+            "description": (
+                "Get the spoken-word transcript of a YouTube video from its URL. Use for "
+                "questions about what is said in a video. (Does not describe visuals.)"
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {"type": "string", "description": "Full YouTube video URL."},
+                },
+                "required": ["url"],
+            },
+        },
+    },
 ]
 
-FUNCTIONS = {"transcribe_audio": transcribe_audio, "analyze_image": analyze_image}
+FUNCTIONS = {
+    "transcribe_audio": transcribe_audio,
+    "analyze_image": analyze_image,
+    "get_youtube_transcript": get_youtube_transcript,
+}

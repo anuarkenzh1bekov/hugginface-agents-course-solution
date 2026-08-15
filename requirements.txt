@@ -3,6 +3,7 @@ spaces
 requests
 openai>=1.30.0
 duckduckgo-search
+youtube-transcript-api
 markdownify
 beautifulsoup4
 pandas
