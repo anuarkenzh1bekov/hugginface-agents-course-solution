@@ -22,4 +22,7 @@ YOUR FINAL ANSWER must obey these rules (exact string matching is used):
 - OR a comma separated list of numbers and/or strings.
 - Do not add explanations after the FINAL ANSWER line.
 - If the answer is a string, do not use articles or extra punctuation unless required.
+- Output ONLY the value itself: no labels, no descriptive prefixes, no units words.
+  e.g. write "80GSFC21M0002", not "award number 80GSFC21M0002";
+  write "Saint Petersburg", not "the city of Saint Petersburg".
 """

@@ -94,11 +94,25 @@ class GaiaAgent:
                 time.sleep(delay)
                 delay = min(delay * 2, 30)
 
-    @staticmethod
-    def _extract_final(text: str) -> str:
-        """Pull out the answer after 'FINAL ANSWER:' and strip the marker."""
+    @classmethod
+    def _extract_final(cls, text: str) -> str:
+        """Pull out the answer after 'FINAL ANSWER:' and normalize it."""
         match = re.search(r"FINAL ANSWER:\s*(.*)", text, re.IGNORECASE | re.DOTALL)
         answer = match.group(1).strip() if match else text.strip()
         # Take only the first line to avoid trailing explanations.
         answer = answer.splitlines()[0].strip() if answer else answer
-        return answer.strip(" .")
+        return cls._normalize(answer)
+
+    @staticmethod
+    def _normalize(answer: str) -> str:
+        """Light, exact-match-safe cleanup that won't corrupt a correct value."""
+        answer = answer.strip()
+        # Drop markdown emphasis/code formatting the model sometimes adds.
+        answer = answer.replace("**", "").replace("`", "").strip()
+        # Strip a single pair of surrounding quotes.
+        if len(answer) >= 2 and answer[0] in "\"'" and answer[-1] == answer[0]:
+            answer = answer[1:-1].strip()
+        # Remove a leading article (GAIA forbids articles in string answers).
+        answer = re.sub(r"^(the|a|an)\s+", "", answer, flags=re.IGNORECASE)
+        # Trim trailing sentence punctuation, keep internal commas/decimals.
+        return answer.strip().rstrip(".")
